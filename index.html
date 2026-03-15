@@ -1202,29 +1202,29 @@ function toggleTheme(){
   window.toggleMusic = function(){
     initAudio();
     if(audio.paused){
-      audio.play().then(function(){ setPlaying(true); }).catch(function(e){
-        var ui = getUI();
-        if(ui.sub) ui.sub.textContent = 'error: ' + e.message;
-      });
+      var playPromise = audio.play();
+      if(playPromise !== undefined){
+        playPromise.then(function(){ setPlaying(true); }).catch(function(){
+          // iOS requiere interacción directa, intentar de nuevo
+          audio.load();
+          audio.play().then(function(){ setPlaying(true); }).catch(function(){
+            var ui = getUI();
+            if(ui.sub) ui.sub.textContent = 'tocá el botón ▶';
+          });
+        });
+      }
     } else {
       audio.pause();
       setPlaying(false);
     }
   };
 
-  // Al cargar la página, preparar el audio silencioso
+  // Solo preparar el audio, sin intentar autoplay (iOS lo bloquea)
   document.addEventListener('DOMContentLoaded', function(){
-    initAudio();
-    // Primer toque o scroll activa la música
-    function firstTouch(){
-      if(audio && audio.paused){
-        audio.play().then(function(){ setPlaying(true); }).catch(function(){});
-      }
-      document.removeEventListener('touchstart', firstTouch);
-      document.removeEventListener('scroll', firstTouch);
-    }
-    document.addEventListener('touchstart', firstTouch, {once:true, passive:true});
-    document.addEventListener('scroll',     firstTouch, {once:true, passive:true});
+    // No hacer autoplay, esperar tap del usuario en el botón
+    var ui = getUI();
+    if(ui.sub) ui.sub.textContent = 'tocá para escuchar';
+    if(ui.player) ui.player.classList.add('paused');
   });
 })();
 
