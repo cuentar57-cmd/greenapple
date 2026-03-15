@@ -1157,110 +1157,74 @@ function toggleTheme(){
 
 // MUSIC PLAYER
 (function(){
-  // Stream de lo-fi gratuito de radio.garden / stream público
-  const STREAMS = [
-    'romantico.mp3'
-  ];
-  let audio = null;
-  let playing = false;
-  let unmuted = false;
-  let streamIdx = 0;
+  var audio = null;
+  var ready = false;
+
+  function getUI(){
+    return {
+      player: document.getElementById('music-player'),
+      play:   document.getElementById('mp-icon-play'),
+      pause:  document.getElementById('mp-icon-pause'),
+      sub:    document.getElementById('mp-sub-text')
+    };
+  }
+
+  function setPlaying(isPlaying){
+    var ui = getUI();
+    if(!ui.player) return;
+    if(isPlaying){
+      ui.player.classList.remove('paused','muted');
+      ui.play.style.display  = 'none';
+      ui.pause.style.display = '';
+      ui.sub.textContent     = 'sonando ahora';
+    } else {
+      ui.player.classList.add('paused');
+      ui.player.classList.remove('muted');
+      ui.play.style.display  = '';
+      ui.pause.style.display = 'none';
+      ui.sub.textContent     = 'pausado';
+    }
+  }
 
   function initAudio(){
     if(audio) return;
-    audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    audio.volume = 0.35;
-    audio.loop = false;
-    tryStream(0);
-  }
-
-  function tryStream(idx){
-    if(idx >= STREAMS.length){ showOffline(); return; }
-    audio.src = STREAMS[idx];
-    audio.load();
-    audio.play().then(()=>{
-      playing = true;
-      setUI(true, true);
-    }).catch(()=>{
-      // autoplay bloqueado, quedar en muted/standby
-      setUI(false, false);
+    audio = new Audio('romantico.mp3');
+    audio.volume = 0.4;
+    audio.loop   = true;
+    audio.addEventListener('canplaythrough', function(){ ready = true; });
+    audio.addEventListener('error', function(){
+      var ui = getUI();
+      if(ui.sub) ui.sub.textContent = 'archivo no encontrado';
     });
-    audio.onerror = function(){ tryStream(idx+1); };
-  }
-
-  function showOffline(){
-    document.getElementById('mp-sub-text').textContent = 'sin conexión';
-  }
-
-  function setUI(isPlaying, isUnmuted){
-    playing = isPlaying;
-    unmuted = isUnmuted;
-    const player = document.getElementById('music-player');
-    const playIcon = document.getElementById('mp-icon-play');
-    const pauseIcon = document.getElementById('mp-icon-pause');
-    const subText = document.getElementById('mp-sub-text');
-    if(!player) return;
-    if(isPlaying && isUnmuted){
-      player.classList.remove('paused','muted');
-      playIcon.style.display = 'none';
-      pauseIcon.style.display = '';
-      subText.textContent = 'sonando ahora';
-    } else if(isPlaying && !isUnmuted){
-      player.classList.add('muted');
-      player.classList.remove('paused');
-      pauseIcon.style.display = 'none';
-      playIcon.style.display = '';
-      subText.textContent = 'toca para activar';
-    } else {
-      player.classList.add('paused');
-      player.classList.remove('muted');
-      playIcon.style.display = '';
-      pauseIcon.style.display = 'none';
-      subText.textContent = 'pausado';
-    }
+    audio.load();
   }
 
   window.toggleMusic = function(){
     initAudio();
-    if(!audio) return;
-    if(!unmuted && audio.paused){
-      audio.muted = false;
-      audio.play().then(()=>{ setUI(true,true); }).catch(()=>{});
-      return;
-    }
-    if(!unmuted){
-      audio.muted = false;
-      unmuted = true;
-      setUI(true, true);
-      return;
-    }
     if(audio.paused){
-      audio.play().then(()=>{ setUI(true,true); }).catch(()=>{});
+      audio.play().then(function(){ setPlaying(true); }).catch(function(e){
+        var ui = getUI();
+        if(ui.sub) ui.sub.textContent = 'error: ' + e.message;
+      });
     } else {
       audio.pause();
-      setUI(false, true);
+      setPlaying(false);
     }
   };
 
-  // Activar con primer scroll o toque
-  function firstInteraction(){
+  // Al cargar la página, preparar el audio silencioso
+  document.addEventListener('DOMContentLoaded', function(){
     initAudio();
-    if(audio && audio.paused){
-      audio.muted = false;
-      audio.play().then(()=>{ setUI(true,true); }).catch(()=>{});
+    // Primer toque o scroll activa la música
+    function firstTouch(){
+      if(audio && audio.paused){
+        audio.play().then(function(){ setPlaying(true); }).catch(function(){});
+      }
+      document.removeEventListener('touchstart', firstTouch);
+      document.removeEventListener('scroll', firstTouch);
     }
-    document.removeEventListener('scroll', firstInteraction);
-    document.removeEventListener('touchstart', firstInteraction);
-    document.removeEventListener('click', firstInteraction);
-  }
-  document.addEventListener('scroll', firstInteraction, {once:true, passive:true});
-  document.addEventListener('touchstart', firstInteraction, {once:true, passive:true});
-
-  // Iniciar con volumen 0 para pasar el autoplay policy en algunos browsers
-  window.addEventListener('DOMContentLoaded', function(){
-    initAudio();
-    if(audio){ audio.muted = true; audio.volume = 0.35; }
+    document.addEventListener('touchstart', firstTouch, {once:true, passive:true});
+    document.addEventListener('scroll',     firstTouch, {once:true, passive:true});
   });
 })();
 
