@@ -315,14 +315,71 @@ body.light .acc-promo{background:rgba(29,185,84,.12);border-color:rgba(29,185,84
 
 /* RESPONSIVE */
 @media(max-width:700px){
-.product-grid{grid-template-columns:1fr}
-.hero-devices{display:none}
-.stat{padding:14px 16px}
-.stat-num{font-size:1.7rem}
+/* NAV */
 .nav-link{display:none}
+.navbar{padding:5px 8px;gap:4px}
+.nav-brand{font-size:.9rem}
+.nav-brand small{font-size:.6rem}
+.nav-logo-img{width:26px;height:26px}
+
+/* HERO */
+.hero{padding:100px 16px 80px}
+.hero-devices{display:none}
+.hero-corner{width:36px;height:36px}
+.hero-corner.tl,.hero-corner.tr{top:70px}
+.hero-corner.bl,.hero-corner.br{bottom:60px}
+.hero-title{font-size:clamp(2.8rem,12vw,4rem)}
+.hero-sub{font-size:.88rem;margin-bottom:28px}
+.hero-cta{flex-wrap:wrap;gap:8px}
+.hero-cta .btn-prim,.hero-cta .btn-sec{padding:11px 16px;font-size:.8rem;flex:1;min-width:120px}
+.hero-stats{flex-wrap:wrap}
+.stat{padding:12px 14px;min-width:50%}
+.stat-num{font-size:1.6rem}
+.stat-label{font-size:.5rem}
+
+/* SECTIONS */
+.section{padding:56px 16px}
+.section-title{font-size:clamp(1.8rem,8vw,2.5rem)}
+.container{padding:0}
+
+/* GRIDS */
+.product-grid{grid-template-columns:1fr}
+.acc-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.clientes-grid{grid-template-columns:repeat(2,1fr);gap:10px}
+.ps-grid{grid-template-columns:1fr}
+
+/* TABS */
+.tabs-wrap{flex-wrap:wrap;width:100%;justify-content:center}
+.tab-btn{padding:7px 14px;font-size:.72rem}
+
+/* MODAL */
 .m-grid{grid-template-columns:1fr}
+.product-modal{padding:20px 16px 28px}
+
+/* UBICACION */
 .ubicacion-wrap{grid-template-columns:1fr}
-.ubicacion-map{height:250px}
+.ubicacion-map{height:220px}
+
+/* MUSIC */
+#music-player{bottom:16px;left:10px}
+#music-player>div>div:first-child{width:190px !important}
+
+/* IG TOAST */
+#ig-toast{bottom:16px}
+#ig-toast>div{min-width:240px;padding:10px 12px}
+
+/* FOOTER */
+.footer-links{gap:10px}
+.footer-link{font-size:.72rem}
+}
+@media(max-width:400px){
+.acc-grid{grid-template-columns:1fr}
+.clientes-grid{grid-template-columns:1fr}
+.hero-cta .btn-prim,.hero-cta .btn-sec{min-width:100%;flex:unset}
+}
+@media(min-width:700px) and (max-width:900px){
+.product-grid{grid-template-columns:repeat(2,minmax(0,360px))}
+.section{padding:70px 20px}
 }
 @media(min-width:900px){
 .product-grid{grid-template-columns:repeat(3,minmax(0,320px))}
